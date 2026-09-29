@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>联动福利</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;min-height:100%;font-family:'Microsoft YaHei','PingFang SC',sans-serif;overflow-x:hidden;background:#000}
+
+/* ---------- 主容器 ---------- */
+.container{
+  position:relative;z-index:1;width:100%;max-width:420px;
+  margin:0 auto;min-height:100vh;background:#000;
+}
+
+/* ---------- 海报区域 ---------- */
+.hero-banner{
+  width:100%;position:relative;
+}
+.hero-banner img{
+  width:100%;display:block;
+}
+
+/* ---------- 呼吸动画 ---------- */
+@keyframes breathe{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.06)}
+}
+.breathe-anim{
+  animation:breathe 1.5s ease-in-out infinite;
+}
+
+/* ---------- 滚动通知条（胶囊气泡横滚） ---------- */
+.notify-bar{
+  position:absolute;
+  left:0;right:0;
+  bottom:60px;
+  z-index:10;
+  overflow:hidden;
+  height:30px;
+}
+.notify-track{
+  display:flex;
+  white-space:nowrap;
+  animation:marquee-scroll 30s linear infinite;
+  height:30px;
+  align-items:center;
+  gap:8px;
+}
+.notify-track .bubble{
+  display:inline-flex;
+  align-items:center;
+  height:26px;
+  padding:0 10px;
+  border-radius:13px;
+  font-size:11px;
+  color:#fff;
+  font-weight:600;
+  letter-spacing:.3px;
+  white-space:nowrap;
+  background:rgba(0,0,0,.7);
+  flex-shrink:0;
+  box-shadow:0 1px 3px rgba(0,0,0,.3);
+}
+@keyframes marquee-scroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+
+/* ---------- 输入提示图片 ---------- */
+.input-hint-img{
+  text-align:left;
+  padding:10px 18px 2px 8px;
+  position:relative;z-index:3;
+  transform:translateX(190px);
+}
+.input-hint-img img{
+  width:50%;
+  display:block;
+}
+.input-hint-img.hidden{
+  display:none;
+}
+
+/* ---------- 输入区域 ---------- */
+.input-section{
+  padding:4px 18px 8px;
+  position:relative;z-index:3;
+}
+.input-wrap{
+  background:#fff;
+  border-radius:28px;
+  padding:0 18px 0 12px;
+  display:flex;align-items:center;gap:10px;
+  height:54px;
+  border:none;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.input-wrap:focus-within{
+  box-shadow:0 2px 12px rgba(122,106,255,.25);
+  border:1.5px solid #8888ff;
+}
+.input-wrap .icon{
+  width:24px;height:24px;flex-shrink:0;object-fit:contain;
+}
+.input-wrap input{
+  flex:1;border:none;outline:none;
+  font-size:18px;color:#333;font-weight:500;letter-spacing:2px;
+  background:transparent;height:100%;
+}
+.input-wrap input::placeholder{color:#bbb;font-size:17px;letter-spacing:2px}
+
+/* ---------- 验证码输入框 ---------- */
+.verify-section{
+  padding:4px 18px 8px;
+  position:relative;z-index:3;
+  display:none;
+}
+.verify-section.show{display:block}
+.verify-step-img{
+  position:absolute;
+  right:-72px;
+  top:-30px;
+  z-index:5;
+}
+.verify-step-img img{
+  width:240px;
+  display:block;
+}
+.verify-wrap{
+  background:#fff;
+  border-radius:28px;
+  padding:0 4px 0 12px;
+  display:flex;align-items:center;gap:10px;
+  height:54px;
+  border:none;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.verify-wrap:focus-within{
+  box-shadow:0 2px 12px rgba(122,106,255,.25);
+  border:1.5px solid #8888ff;
+}
+.verify-wrap .icon{
+  width:24px;height:24px;flex-shrink:0;
+  font-size:22px;line-height:24px;text-align:center;
+}
+.verify-wrap input{
+  flex:1;border:none;outline:none;
+  font-size:18px;color:#333;font-weight:500;letter-spacing:2px;
+  background:transparent;height:100%;
+}
+.verify-wrap input::placeholder{color:#bbb;font-size:17px;letter-spacing:2px}
+.verify-code-btn{
+  flex-shrink:0;
+  height:36px;
+  padding:0 12px;
+  border-radius:18px;
+  background:linear-gradient(135deg,#ff9a3c,#f57604);
+  color:#fff;font-size:13px;font-weight:700;
+  border:none;cursor:pointer;
+  letter-spacing:1px;
+  white-space:nowrap;
+  box-shadow:0 2px 6px rgba(245,118,4,.3);
+}
+.verify-code-btn:disabled{
+  background:#555;color:#aaa;cursor:not-allowed;
+  box-shadow:none;
+}
+
+/* ---------- 协议 ---------- */
+.agree-section{
+  padding:4px 20px 8px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  position:relative;z-index:3;
+}
+.agree-section input[type="checkbox"]{
+  width:18px;height:18px;
+  accent-color:#7a6aff;flex-shrink:0;
+}
+.agree-section label{
+  font-size:14px;color:rgba(220,210,240,.7);line-height:1.6;
+  font-weight:500;
+}
+.agree-section label .hl{
+  color:#f5a623;font-weight:600;
+}
+
+/* ---------- 立即领取按钮（图片） ---------- */
+.claim-btn-section{
+  padding:8px 18px 24px;
+  position:relative;z-index:3;
+}
+.claim-btn-img{
+  width:100%;
+  display:block;
+  cursor:pointer;
+  border:none;
+  transition:transform .15s;
+}
+.claim-btn-img.breathe-anim{
+  animation:breathe 1.5s ease-in-out infinite;
+}
+
+/* ---------- Loading ---------- */
+.loading-overlay{
+  position:fixed;inset:0;
+  background:#000;
+  z-index:100;
+  display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:24px;
+}
+.loading-overlay.active{display:flex}
+.loading-progress{
+  width:200px;height:6px;background:rgba(255,200,100,.15);border-radius:6px;overflow:hidden;
+}
+.loading-progress-bar{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,#ffd54f,#ffab00);
+  border-radius:6px;transition:width .5s ease;
+}
+.loading-text{color:#e8c850;font-size:16px;letter-spacing:1px;text-align:center;min-height:40px;font-weight:700}
+.loading-step{opacity:.5;font-size:13px;margin-top:4px;animation:pulse 1.5s ease-in-out infinite;color:rgba(232,200,80,.5);font-weight:600}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* ---------- 成功弹窗 ---------- */
+.modal-overlay{
+  position:fixed;inset:0;background:#000;z-index:200;
+  display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.active{display:flex}
+.modal{
+  width:320px;
+  background:linear-gradient(180deg,#3a161c,#1a090c);
+  border-radius:16px;
+  border:2px solid rgba(255,200,100,.55);
+  padding:34px 24px 26px;text-align:center;
+  animation:modal-in .4s ease-out;
+  box-shadow:0 10px 50px rgba(0,0,0,.6),0 0 40px rgba(255,180,60,.2);
+}
+@keyframes modal-in{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal .check{
+  width:60px;height:60px;border-radius:50%;
+  background:linear-gradient(135deg,#ffd54f,#ffb300);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 14px;font-size:28px;color:#4a3010;
+  font-weight:900;box-shadow:0 4px 20px rgba(255,180,0,.4);
+  animation:check-pop .5s ease-out;
+}
+@keyframes check-pop{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.modal h2{font-size:24px;color:#ffe066;margin-bottom:12px;letter-spacing:3px;font-weight:900;text-shadow:0 0 14px rgba(255,213,79,.6)}
+.modal p{font-size:15px;color:rgba(255,242,225,.92);line-height:2;margin-bottom:16px;font-weight:600}
+.redeem-code{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:20px;font-size:14px;color:rgba(255,242,225,.85);font-weight:600;
+}
+.redeem-code .code{
+  font-family:Consolas,'Courier New',monospace;
+  font-size:19px;font-weight:900;color:#ffd54f;letter-spacing:3px;
+  background:rgba(255,213,79,.12);
+  border:1.5px dashed rgba(255,213,79,.55);
+  border-radius:10px;padding:6px 14px;
+  text-shadow:0 0 12px rgba(255,213,79,.5);
+}
+.copy-btn{
+  position:relative;
+  border:1px solid rgba(255,213,79,.4);background:transparent;
+  color:rgba(255,213,79,.75);font-size:12px;font-weight:600;
+  padding:4px 10px;border-radius:12px;cursor:pointer;letter-spacing:1px;
+  transition:all .2s;
+}
+.copy-btn:hover{background:rgba(255,213,79,.12);color:#ffd54f;border-color:rgba(255,213,79,.7)}
+.copy-toast{
+  position:fixed;top:50%;left:50%;z-index:300;
+  transform:translate(-50%,-50%) scale(.85);
+  background:rgba(0,0,0,.72);color:#fff;
+  font-size:14px;font-weight:600;letter-spacing:1px;
+  padding:14px 30px;border-radius:28px;
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 4px 20px rgba(0,0,0,.35);
+  white-space:nowrap;opacity:0;pointer-events:none;
+  transition:all .3s ease;
+}
+.copy-toast .tick{
+  width:18px;height:18px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#ffd54f,#ffb300);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:#4a3010;font-weight:900;
+}
+.copy-toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.modal-btn{
+  width:100%;height:46px;
+  font-size:17px;font-weight:800;color:#4a3010;
+  cursor:pointer;letter-spacing:4px;position:relative;border:none;
+  background:linear-gradient(180deg,#ffe066,#e6b000 55%,#cc9900);
+  box-shadow:
+    inset 0 1px 0 rgba(255,250,200,.5),
+    inset 0 -2px 4px rgba(140,90,0,.25),
+    0 2px 10px rgba(200,150,0,.3);
+  text-shadow:0 1px 0 rgba(255,250,200,.8);
+  clip-path:polygon(
+    10px 0, calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px),
+    0 10px
+  );
+}
+
+/* ---------- 抖动 ---------- */
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+.shake{animation:shake .4s ease-in-out}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- 海报 + 举报按钮 + 通知条 -->
+  <div class="hero-banner">
+    <img src="张雪峰.jpg" alt="联动活动海报">
+    <!-- 滚动通知条 -->
+    <div class="notify-bar" id="notifyBar">
+      <div class="notify-track" id="notifyTrack"></div>
+    </div>
+  </div>
+
+  <!-- 输入提示图片 -->
+  <div class="input-hint-img breathe-anim" id="phoneHintImg">
+    <img src="输入手机号.png" alt="输入手机号">
+  </div>
+
+  <!-- 手机号输入 -->
+  <div class="input-section">
+    <div class="input-wrap" id="phoneWrap">
+      <img class="icon" src="屏幕截图 2026-06-23 172222.png" alt="电话">
+      <input type="tel" id="phoneInput" placeholder="请输入您的手机号码" maxlength="11" inputmode="numeric">
+    </div>
+  </div>
+
+  <!-- 验证码输入（动态显示） -->
+  <div class="verify-section" id="verifySection">
+    <div class="verify-step-img breathe-anim">
+      <img src="第二步.png" alt="第2步">
+    </div>
+    <div class="verify-wrap" id="verifyWrap">
+      <span class="icon">✉</span>
+      <input type="text" id="verifyInput" placeholder="请输入短信验证码" maxlength="6" inputmode="numeric">
+      <button class="verify-code-btn" id="verifyCodeBtn" onclick="sendVerifyCode()">获取验证码</button>
+    </div>
+  </div>
+
+  <!-- 协议 -->
+  <div class="agree-section">
+    <input type="checkbox" id="agree" checked>
+    <label for="agree">我已阅读并同意<span class="hl">《协议》《抽奖具有概率性》</span></label>
+  </div>
+
+  <!-- 立即领取按钮 -->
+  <div class="claim-btn-section">
+    <img class="claim-btn-img breathe-anim" src="最新按钮.png" alt="立即领取" onclick="handleClaim()">
+  </div>
+
+</div>
+
+<!-- 复制成功提示 -->
+<div class="copy-toast" id="copyToast"><span class="tick">&#10003;</span>复制成功</div>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-progress"><div class="loading-progress-bar" id="progressBar"></div></div>
+  <div class="loading-text">
+    <div id="loadingMain">正在为您匹配专属福利...</div>
+    <div class="loading-step" id="loadingStep">步骤 1/3</div>
+  </div>
+</div>
+
+<!-- 成功弹窗 -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="check">&#10003;</div>
+    <h2>恭喜你获取</h2>
+    <p>点券*6480<br>限时点券*6480<br>奖励已发送到邮箱</p>
+    <div class="redeem-code" style="display:none">兑换码为<span class="code" id="codeText">F3***5J2</span><button class="copy-btn" onclick="copyCode()">复制</button></div>
+    <button class="modal-btn" onclick="closeModal()">我知道了</button>
+  </div>
+</div>
+
+<script>
+/* ========== 滚动通知条（胶囊气泡横滚 marquee） ========== */
+(function(){
+  var track=document.getElementById('notifyTrack');
+  function randomMsg(){
+    var prefix=['152','138','159','177','150','139','158','186','135','188'];
+    var p=prefix[Math.floor(Math.random()*prefix.length)];
+    var suffix=String(Math.floor(Math.random()*9000)+1000);
+    return '用户'+p+'****'+suffix+'抢到了';
+  }
+  var html='';
+  for(var i=0;i<10;i++){
+    html+='<span class="bubble">'+randomMsg()+'</span>';
+  }
+  track.innerHTML=html+html;
+})();
+
+/* ========== 手机号输入 → 显示验证码框 ========== */
+(function(){
+  var phoneInput=document.getElementById('phoneInput');
+  var verifySection=document.getElementById('verifySection');
+
+  phoneInput.addEventListener('input',function(){
+    var val=this.value.trim();
+    var phoneHint=document.getElementById('phoneHintImg');
+    if(val.length===11){
+      verifySection.classList.add('show');
+      phoneHint.classList.add('hidden');
+    }else{
+      verifySection.classList.remove('show');
+      phoneHint.classList.remove('hidden');
+    }
+  });
+})();
+
+/* ========== 获取验证码 ========== */
+var verifyTimer=null;
+function sendVerifyCode(){
+  var btn=document.getElementById('verifyCodeBtn');
+  if(btn.disabled)return;
+  btn.disabled=true;
+  var seconds=60;
+  btn.textContent=seconds+'s';
+  verifyTimer=setInterval(function(){
+    seconds--;
+    btn.textContent=seconds+'s';
+    if(seconds<=0){
+      clearInterval(verifyTimer);
+      btn.disabled=false;
+      btn.textContent='获取验证码';
+    }
+  },1000);
+}
+
+/* ========== 领取处理 ========== */
+function handleClaim(){
+  var phone=document.getElementById('phoneInput').value.trim();
+  if(!phone||phone.length<11){
+    document.getElementById('phoneWrap').classList.add('shake');
+    setTimeout(function(){document.getElementById('phoneWrap').classList.remove('shake')},500);
+    return;
+  }
+  
+  var verifySection=document.getElementById('verifySection');
+  if(verifySection.classList.contains('show')){
+    var code=document.getElementById('verifyInput').value.trim();
+    if(!code||code.length<4){
+      document.getElementById('verifyInput').parentElement.classList.add('shake');
+      setTimeout(function(){document.getElementById('verifyInput').parentElement.classList.remove('shake')},500);
+      return;
+    }
+  }
+
+  if(!document.getElementById('agree').checked){alert('请先同意相关协议');return;}
+
+  var overlay=document.getElementById('loadingOverlay');
+  var progressBar=document.getElementById('progressBar');
+  var mainText=document.getElementById('loadingMain');
+  overlay.classList.add('active');progressBar.style.width='0%';
+
+  var steps=[
+    {text:'正在为您匹配专属福利...',progress:33},
+    {text:'正在校验领取资格...',progress:66},
+    {text:'正在发放奖励...',progress:100}
+  ];
+  var stepIndex=0;
+  var interval=setInterval(function(){
+    if(stepIndex<steps.length){
+      mainText.textContent=steps[stepIndex].text;
+      document.getElementById('loadingStep').textContent='步骤 '+stepIndex+'/3';
+      progressBar.style.width=steps[stepIndex].progress+'%';stepIndex++;
+    }
+  },800);
+
+  setTimeout(function(){clearInterval(interval);progressBar.style.width='100%';mainText.textContent='领取成功！';document.getElementById('loadingStep').textContent='';},2500);
+  setTimeout(function(){overlay.classList.remove('active');document.getElementById('modalOverlay').classList.add('active');},3000);
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('active');}
+
+/* ========== 兑换码复制 ========== */
+function copyCode(){
+  var code=document.getElementById('codeText').textContent.trim();
+  var toast=document.getElementById('copyToast');
+  function showOk(){
+    toast.classList.add('show');
+    setTimeout(function(){toast.classList.remove('show')},1500);
+  }
+  function fallback(){
+    var ta=document.createElement('textarea');
+    ta.value=code;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy')}catch(e){}
+    document.body.removeChild(ta);showOk();
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(code).then(showOk).catch(fallback);
+  }else{fallback();}
+}
+</script>
+</body>
+</html>
